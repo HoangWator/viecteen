@@ -54,7 +54,7 @@ function App() {
   return (
     <div className="">
       <div className="nav w-full h-15 bg-white flex items-center justify-between px-10">
-        <h1 className='text-3xl'>viecteen</h1>
+        <h1 className='text-3xl text-blue-600'>viecteen</h1>
         <div className="account-management flex items-center">
           {userData && 
             <button 
