@@ -1,0 +1,17 @@
+@import "tailwindcss"; 
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/preflight.css" layer(base);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+@layer components {
+  .exit-btn {
+    @apply w-10 h-10 flex justify-center items-center rounded-full cursor-pointer hover:bg-gray-200 absolute left-2.5 top-2.5;
+  }
+  .primary-btn {
+    @apply p-2.5 bg-black text-base text-white rounded-full cursor-pointer;
+  }
+  .input-field {
+    @apply w-full p-2.5 border-none rounded-md bg-gray-100;
+  }
+}
