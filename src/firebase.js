@@ -4,13 +4,13 @@ import { getAuth,GoogleAuthProvider,signOut,onAuthStateChanged } from "https://w
 import { getFirestore,doc,setDoc,getDoc  } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAq82X34BNFJyrdRURakf-fu9X4mYOkOaI",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: "viecteen.firebaseapp.com",
   projectId: "viecteen",
   storageBucket: "viecteen.firebasestorage.app",
-  messagingSenderId: "695806770201",
-  appId: "1:695806770201:web:f08795b54302a12fd77e88",
-  measurementId: "G-WWTEYJTGWB"
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_MEASUREMENT_ID
 };
 
 // Initialize Firebase
