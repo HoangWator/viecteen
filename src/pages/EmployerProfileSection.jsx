@@ -1,15 +1,125 @@
 import { useState,useEffect } from 'react'
-import { getCompanyProfileFromDB, addCompanyProfileToDB } from '../firebase'
+import { getCompanyProfileFromDB, addCompanyProfileToDB,updateUserInDB } from '../firebase'
 
-function ProfileDetails({userData}) {
+// Update employer details component
+function UpdateEmployerDetails({userData, onClose, userID}) {
+  const [phoneNumber, setPhoneNumber] = useState("")
+  const [userName, setUserName] = useState(userData.name)
+
+  const [gender, setGender] = useState("")
+  const handleRadioChange = (e) => {
+    setGender(e.target.value)
+  }
+
+  const handleSubmit = async () => {
+    updateUserInDB(userID, userName, phoneNumber, gender).then(() => {
+      alert("Profile updated successfully!")
+      onClose()
+    }).catch((error) => {
+      console.error("Error updating profile: ", error)
+      alert("Failed to update profile.")
+    })
+  }
+
+  
+
+  return (
+    <div className="w-full h-screen fixed top-0 left-0 right-0 overflow-auto bg-white">
+      <button
+        className='exit-btn'
+        onClick={onClose}
+      >X</button>
+      <div className="w-1/2 pt-10 pb-10 mx-auto">
+        <h1 className="text-4xl font-bold text-center mb-10">Update your profile</h1>
+        <div className="flex flex-col gap-2.5 w-full">
+          <span>Your name:</span>
+          <input
+            className="input-field bg-gray-100"
+            type="text" 
+            placeholder="Your full name"
+            onChange={(e) => setUserName(e.target.value)}  
+          />
+          <span>Gender:</span>
+          <div className='flex gap-2.5'>
+            <label>
+              <input 
+                type="radio" 
+                value="Male" 
+                onChange={handleRadioChange}
+                checked={gender === "Male"}
+                className='mr-1'
+              /> Male
+            </label>
+            <label>
+              <input 
+                type="radio" 
+                value="Female" 
+                onChange={handleRadioChange}
+                checked={gender === "Female"}
+                className='mr-1'
+              /> Female
+            </label>
+          </div>
+            
+          
+          <span>Phone number:</span>
+          <input 
+            type="tel" 
+            className='input-field'
+            placeholder='Your phone number'
+            onChange={(e) => setPhoneNumber(e.target.value)}
+          />
+
+        </div>
+        <div className='text-center'>
+          <button 
+            className='primary-btn mt-10'
+            onClick={handleSubmit}
+          >Submit</button>  
+        </div>
+      </div>
+    </div>
+  )
+}
+// Show employer details component
+function EmployerDetails({userData, userID}) {
+  const [editMode, setEditMode] = useState(false)
   return (
     <div className="w-full flex flex-col gap-5 mt-5 items-center">
-      <p>Tell more about yourself</p>
-      <button className='primary-btn'>Update your profile</button>
+
+      {editMode && 
+        <UpdateEmployerDetails 
+        userData={userData}
+        userID={userID}
+        onClose={() => setEditMode(false)}
+        />
+      }
+
+      <div className='flex flex-col gap-2.5 w-full'>
+        <div className='flex gap-2.5'>
+          <span className="w-1/3 font-bold text-lg">Full name:</span>
+          <p>{userData.name}</p>
+        </div>
+        <div className='flex gap-2.5'>
+          <span className="w-1/3 font-bold text-lg">Gender:</span>
+          <p>{userData.gender || "Unknown"}</p>
+        </div>
+        <div className='flex gap-2.5'>
+          <span className="w-1/3 font-bold text-lg">Phone number:</span>
+          <p>{userData.phoneNumber || "Unknown"}</p>
+        </div>
+        <div className='flex gap-2.5'>
+          <span className="w-1/3 font-bold text-lg">Email:</span>
+          <p>{userData.email || "Unknown"}</p>
+        </div>
+      </div>
+
+      <button className='primary-btn' onClick={() => setEditMode(true)}>Update your profile</button>
     </div>
   )
 }
 
+// Update company details component
 function CompanySignUp({onClose, employerID}) {
   const [nameCompany, setNameCompany] = useState("")
   const [typeCompany, setTypeCompany] = useState("")
@@ -17,6 +127,10 @@ function CompanySignUp({onClose, employerID}) {
   const [contactNumber, setContactNumber] = useState("")
   const [websiteURL, setWebsiteURL] = useState("")
   const [imageProfile, setImageProfile] = useState(null)
+
+  const handleDroplistChange = (e) => {
+    setTypeCompany(e.target.value)
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -39,6 +153,8 @@ function CompanySignUp({onClose, employerID}) {
       alert("Failed to create company profile.")
     })
   }
+
+
   return (
     <div className="w-full h-screen fixed top-0 left-0 right-0 overflow-auto bg-white">
       <button
@@ -56,12 +172,18 @@ function CompanySignUp({onClose, employerID}) {
             type="text" 
             placeholder="Business name (Eg: Nhà hàng Hải Phương, Tạp hóa Thúy Quỳnh,...)"/>
           <span>Type of business</span>
-          <input 
-            required
-            onChange={(e) => setTypeCompany(e.target.value)}
-            className="input-field"
-            type="text" 
-            placeholder="Type of company.."/>
+          <select id="my-select" className='input-field cursor-pointer' onChange={handleDroplistChange} value={typeCompany}>
+            <option value="">--Please choose your business type--</option>
+            <option value="Restaurant">Restaurant</option>
+            <option value="Grocery">Grocery</option>
+            <option value="Clothing">Clothing</option>
+            <option value="Technology">Technology</option>
+            <option value="Healthcare">Healthcare</option>
+            <option value="Education">Education</option>
+            <option value="Finance">Finance</option>
+            <option value="Entertainment">Entertainment</option>
+            <option value="Other">Other</option>
+          </select>
           <span>Address:</span>
           <input 
             required
@@ -97,7 +219,7 @@ function CompanySignUp({onClose, employerID}) {
     </div>
   )
 }
-
+// Company details component
 function CompanyDetails({companyData, employerID}) {
   const [showCompanySignUp, setShowCompanySignUp] = useState(false)
 
@@ -163,7 +285,8 @@ function CompanyDetails({companyData, employerID}) {
   )
 }
 
-export function ProfileSection({onClose, userData, companyData, userID}) {
+// Main component
+export function EmployerProfileSection({onClose, userData, companyData, userID}) {
   const [clickedIndex, setClickedIndex] = useState(0)
   const [pageIndex, setPageIndex] = useState(0)
   return (
@@ -187,7 +310,7 @@ export function ProfileSection({onClose, userData, companyData, userID}) {
         </div>
 
         {clickedIndex === 0 && 
-          <ProfileDetails userData={userData}/>
+          <EmployerDetails userData={userData} userID={userID}/>
         }
         {clickedIndex === 1 && 
           <CompanyDetails companyData={companyData} employerID={userID}/>

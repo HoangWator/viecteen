@@ -12,6 +12,6 @@
     @apply p-2.5 bg-black text-base text-white rounded-full cursor-pointer;
   }
   .input-field {
-    @apply w-full p-2.5 border-none rounded-md bg-gray-100;
+    @apply w-full p-2.5 border-none outline-none rounded-md bg-gray-100;
   }
 }

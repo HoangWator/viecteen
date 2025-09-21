@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-analytics.js";
 import { getAuth,GoogleAuthProvider,signOut,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
-import { getFirestore,doc,setDoc,getDoc  } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+import { getFirestore,doc,setDoc,getDoc,updateDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -59,18 +59,33 @@ export const checkAuthStatus = () => {
 // }
 
 // Save user to Firestore
-export const addUserToDB = async (username, uid, role, photoURL) => {
+export const addUserToDB = async (username, uid, role, photoURL, email) => {
   try {
     await setDoc(doc(db, "users", uid), {
       name: username,
       role: role,
-      photoProfile: photoURL
+      photoProfile: photoURL,
+      email: email
     });
   }
   catch (error) {
     console.log(error)
   }
 }
+// Update user details in Firestore
+export const updateUserInDB = async (uid, name, phoneNumber,gender) => {
+  try {
+    await updateDoc(doc(db, "users", uid), {
+      name: name,
+      gender: gender,
+      phoneNumber: phoneNumber
+    });
+  }
+  catch (error) {
+    console.log(error)
+  }
+}
+
 
 export const getUserFromDB = async (uid) => {
   try {

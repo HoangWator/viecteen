@@ -6,7 +6,7 @@ import './App.css'
 import { SignUpPage } from './pages/CreateAccount'
 import { EmployerPage } from './pages/EmployerPage'
 import { CandidatePage } from './pages/CandidatePage'
-import { ProfileSection } from './pages/ProfileSection'
+import { EmployerProfileSection } from './pages/EmployerProfileSection'
 
 import { getAuth,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 import { getUserFromDB,getCompanyProfileFromDB,signOutGoogle, checkAuthStatus } from './firebase'
@@ -18,7 +18,7 @@ function App() {
   const [userRole, setUserRole] = useState(null)
   const [userID, setUserID] = useState(null)
   const [companyData, setCompanyData] = useState(null)
-  const [showProfileSection, setShowProfileSection] = useState(false)
+  const [showEmployerProfileSection, setShowEmployerProfileSection] = useState(false)
 
 
   const handleUserData = (uid) => {
@@ -56,11 +56,11 @@ function App() {
       <div className="nav w-full h-15 bg-white flex items-center justify-between px-10">
         <h1 className='text-3xl text-blue-600'>viecteen</h1>
         <div className="account-management flex items-center">
-          {userData && 
+          {userData && userRole === "Employer" &&
             <button 
               className="cursor-pointer mr-2.5"
               onClick={async () => {
-                setShowProfileSection(true)
+                setShowEmployerProfileSection(true)
                 const userDataFromDB = await getUserFromDB(userID)
                 setUserData(userDataFromDB)
                 const companyProfile = await getCompanyProfileFromDB(userID)
@@ -86,9 +86,9 @@ function App() {
         userRole === "Candidate" && <CandidatePage />
       }
       {
-        showProfileSection && 
-          <ProfileSection 
-            onClose={() => setShowProfileSection(false)} 
+        showEmployerProfileSection && 
+          <EmployerProfileSection 
+            onClose={() => setShowEmployerProfileSection(false)} 
             userData={userData}
             companyData={companyData}
             userID={userID}

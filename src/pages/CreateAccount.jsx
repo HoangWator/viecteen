@@ -7,7 +7,7 @@ import { addUserToDB,getUserFromDB } from '../firebase.js';
 
 export function SelectRole({onClose,data,onUserData}) {
   const addUser = (role) => {
-    addUserToDB(data.displayName, data.uid, role, data.photoURL)
+    addUserToDB(data.displayName, data.uid, role, data.photoURL, data.email)
     onUserData(data.uid)
     onClose()
   }
