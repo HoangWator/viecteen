@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-analytics.js";
 import { getAuth,GoogleAuthProvider,signOut,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
-import { getFirestore,doc,setDoc,getDoc,updateDoc } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+import { getFirestore,doc,setDoc,getDoc,updateDoc,addDoc,collection } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -86,7 +86,7 @@ export const updateUserInDB = async (uid, name, phoneNumber,gender) => {
   }
 }
 
-
+// Get user from Firestore
 export const getUserFromDB = async (uid) => {
   try {
     const docRef = doc(db, "users", uid);
@@ -121,7 +121,7 @@ export const addCompanyProfileToDB = async (uid, nameCompany, typeCompany, addre
     console.log(error)
   }
 }
-
+// Get company profile from Firestore
 export const getCompanyProfileFromDB = async (uid) => {
   try {
     const docRef = doc(db, "companies", uid);
@@ -135,5 +135,15 @@ export const getCompanyProfileFromDB = async (uid) => {
   }
   catch (error) {
     console.log(error)
+  }
+}
+
+//add job post to Firestore
+export const addJobPostToDB = async (jobData) => {
+  try {
+    await addDoc(collection(db, "jobs"), jobData);
+  } 
+  catch (error) {
+    console.error("Error adding job post: ", error);
   }
 }

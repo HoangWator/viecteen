@@ -49,7 +49,6 @@ function App() {
   }, [])
 
   
-  console.log("User Data in App:", userData)
 
   return (
     <div className="">

@@ -1,35 +1,73 @@
 import { useState,useEffect } from 'react'
-import { addCompanyProfileToDB } from '../firebase'
+import { addJobPostToDB,getCompanyProfileFromDB,getUserFromDB } from '../firebase'
 
-function AddJobPost({onClose}) {
-  const [formData, setFormData] = useState({
-    jobTitle: '',
-    company: '',
-    description: '',
-    location: '',
-    employmentType: '',
-    payType: '',
-    salary: '',
-    requirements: '',
-    tags: '',
-    status: true, // true for 'Open', false for 'Closed'
-  });
+function AddJobPost({onClose, employerID}) {
+  const [userData, setUserData] = useState(null)
+  const [businessData, setBusinessData] = useState(null)
+  const [showDropDown, setShowDropdown] = useState(false)
+  
+  // Individual state hooks for each field
+  const [jobTitle, setJobTitle] = useState('')
+  const [typePostOwner, setTypePostOwner] = useState('')
+  const [description, setDescription] = useState('')
+  const [location, setLocation] = useState('')
+  const [employmentType, setEmploymentType] = useState('')
+  const [payType, setPayType] = useState('')
+  const [salary, setSalary] = useState('')
+  const [requirements, setRequirements] = useState('')
+  const [tags, setTags] = useState('')
+  const [status, setStatus] = useState(true)
 
   // Handle changes for all form inputs
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: type === 'checkbox' ? checked : value,
-    }));
+    switch(name) {
+      case 'jobTitle': setJobTitle(value); break;
+      case 'typePostOwner': setTypePostOwner(value); break;
+      case 'description': setDescription(value); break;
+      case 'location': setLocation(value); break;
+      case 'employmentType': setEmploymentType(value); break;
+      case 'payType': setPayType(value); break;
+      case 'salary': setSalary(value); break;
+      case 'requirements': setRequirements(value); break;
+      case 'tags': setTags(value); break;
+      case 'status': setStatus(checked); break;
+    }
+    setShowDropdown(false)
   };
 
   // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
+    const formData = {
+      jobTitle,
+      typePostOwner,
+      description,
+      location,
+      employmentType,
+      payType,
+      salary,
+      requirements,
+      tags,
+      status,
+      ownerID: employerID || ''
+    };
     console.log('Form data submitted:', formData);
+    addJobPostToDB(formData);
+    onClose();
     // You can add logic here to send the data to an API
   };
+
+  useEffect(() => {
+    if (employerID) {
+      getUserFromDB(employerID).then((data) => {
+        setUserData(data)
+      })
+      getCompanyProfileFromDB(employerID).then((data) => {
+        setBusinessData(data)
+      })
+    }
+  }, [])
 
   return (
     <div className="w-full h-screen fixed top-0 left-0 right-0 min-h-screen p-4 sm:p-6 lg:p-8 bg-white overflow-auto">
@@ -51,25 +89,60 @@ function AddJobPost({onClose}) {
                 type="text"
                 id="jobTitle"
                 name="jobTitle"
-                value={formData.jobTitle}
+                value={jobTitle}
                 onChange={handleChange}
                 required
                 className="input-field mt-1"
                 placeholder="e.g., Senior Software Engineer"
               />
             </div>
-            <div>
+            <div className='relative'>
               <label htmlFor="company" className="block text-sm font-semibold text-gray-700">Company / User</label>
               <input
                 type="text"
                 id="company"
-                name="company"
-                value={formData.company}
+                name="typePostOwner"
+                value={typePostOwner === "user" ? userData.name : typePostOwner === "business" ? businessData.nameCompany : ''}
                 onChange={handleChange}
                 required
                 className='input-field mt-1'
                 placeholder="e.g., Acme Inc."
+                onClick={() => setShowDropdown(true)}
               />
+              {
+                showDropDown && 
+                  <div className='w-full shadow-xl p-2 rounded-lg mt-2 absolute bg-white'>
+                    <div className='overflow-hidden'>
+                      <button 
+                        className='float-right w-6 h-6 rounded-full cursor-pointer hover:bg-gray-100'
+                        onClick={() => setShowDropdown(false)}
+                      >X</button>
+                    </div>
+                    {userData && 
+                      <div 
+                        className="flex items-center space-x-3 rounded-lg p-2 cursor-pointer hover:bg-gray-100"
+                        onClick={() => {
+                          setShowDropdown(false)
+                          setTypePostOwner("user")
+                        }}
+                      >
+                        <img src={userData.photoProfile} alt="User Profile" className="w-8 h-8 rounded-full" />
+                        <span className="text-sm font-medium text-gray-700">{userData.name}</span>
+                      </div>
+                    }
+                    {businessData && 
+                      <div 
+                        className="rounded-lg p-2 cursor-pointer hover:bg-gray-100"
+                        onClick={() => {
+                          setShowDropdown(false)
+                          setTypePostOwner("business")
+                        }}
+                      >
+                        <span className="text-sm font-medium text-gray-700">{businessData.nameCompany}</span>
+                      </div>
+                    }
+                  </div>
+              }
             </div>
           </div>
 
@@ -80,7 +153,7 @@ function AddJobPost({onClose}) {
               id="description"
               name="description"
               rows="6"
-              value={formData.description}
+              value={description}
               onChange={handleChange}
               required
               className='input-field mt-1'
@@ -96,7 +169,7 @@ function AddJobPost({onClose}) {
                 type="text"
                 id="location"
                 name="location"
-                value={formData.location}
+                value={location}
                 onChange={handleChange}
                 required
                 className='input-field mt-1'
@@ -108,7 +181,7 @@ function AddJobPost({onClose}) {
               <select
                 id="employmentType"
                 name="employmentType"
-                value={formData.employmentType}
+                value={employmentType}
                 onChange={handleChange}
                 required
                 className='input-field mt-1'
@@ -126,7 +199,7 @@ function AddJobPost({onClose}) {
               <select
                 id="payType"
                 name="payType"
-                value={formData.payType}
+                value={payType}
                 onChange={handleChange}
                 required
                 className='input-field mt-1'
@@ -143,7 +216,7 @@ function AddJobPost({onClose}) {
                 type="text"
                 id="salary"
                 name="salary"
-                value={formData.salary}
+                value={salary}
                 onChange={handleChange}
                 placeholder="$50,000 - $70,000"
                 className='input-field mt-1'
@@ -159,7 +232,7 @@ function AddJobPost({onClose}) {
                 id="requirements"
                 name="requirements"
                 rows="4"
-                value={formData.requirements}
+                value={requirements}
                 onChange={handleChange}
                 className='input-field mt-1'
                 placeholder="List key skills, qualifications, and experience required for the role."
@@ -171,7 +244,7 @@ function AddJobPost({onClose}) {
                 type="text"
                 id="tags"
                 name="tags"
-                value={formData.tags}
+                value={tags}
                 onChange={handleChange}
                 placeholder="e.g., Remote, UI/UX, Design"
                 className='input-field mt-1'
@@ -184,15 +257,15 @@ function AddJobPost({onClose}) {
           <div className="flex items-center justify-between bg-blue-50 p-4 rounded-xl shadow-inner">
             <span className="text-base font-bold text-blue-900">Job Status</span>
             <div className="flex items-center space-x-4">
-              <span className={`font-bold transition-colors duration-300 ${formData.status ? 'text-green-600' : 'text-red-600'}`}>
-                {formData.status ? 'Open' : 'Closed'}
+              <span className={`font-bold transition-colors duration-300 ${status ? 'text-green-600' : 'text-red-600'}`}>
+                {status ? 'Open' : 'Closed'}
               </span>
               <label htmlFor="statusToggle" className="relative inline-flex items-center cursor-pointer">
                 <input
                   type="checkbox"
                   id="statusToggle"
                   name="status"
-                  checked={formData.status}
+                  checked={status}
                   onChange={handleChange}
                   className="sr-only peer"
                 />
@@ -225,7 +298,11 @@ export function EmployerPage({employerID}) {
         className='primary-btn'
         onClick={() => setShowJobPostForm(true)}
       >Add Job Post</button>
-      {showJobPostForm && <AddJobPost onClose={() => setShowJobPostForm(false)}/>}
+      {showJobPostForm && 
+        <AddJobPost 
+          onClose={() => setShowJobPostForm(false)}
+          employerID={employerID}
+        />}
     </div>
   )
 }
