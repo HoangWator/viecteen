@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-analytics.js";
 import { getAuth,GoogleAuthProvider,signOut,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
-import { getFirestore,doc,setDoc,getDoc,updateDoc,addDoc,collection } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+import { getFirestore,doc,setDoc,getDoc,getDocs,updateDoc,addDoc,collection } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -139,11 +139,40 @@ export const getCompanyProfileFromDB = async (uid) => {
 }
 
 //add job post to Firestore
-export const addJobPostToDB = async (jobData) => {
+export const addJobPostToDB = async (jobData, employerID) => {
   try {
-    await addDoc(collection(db, "jobs"), jobData);
+    const docRef = await addDoc(collection(db, "jobs"), jobData);
+
+    // Add job post ID to user's profile
+    const userRef = doc(db, "users", employerID);
+    await updateDoc(userRef, {
+      jobPosts: [...(await getUserFromDB(employerID)).jobPosts || [], docRef.id]
+    });
   } 
   catch (error) {
     console.error("Error adding job post: ", error);
   }
+}
+// Get job post from Firestore
+export const getJobPostFromDB = async (jobID) => {
+  try {
+    const docRef = doc(db, "jobs", jobID);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      return docSnap.data();
+    } else {
+      // docSnap.data() will be undefined in this case
+      return null
+    }
+  }
+  catch (error) {
+    console.log(error)
+  } 
+}
+
+export const getAllJobsFromDB = async () => {
+  const querySnapshot = await getDocs(collection(db, "jobs"));
+  let jobs = []
+  querySnapshot.forEach(doc => jobs.push(doc.data()));
+  return jobs
 }

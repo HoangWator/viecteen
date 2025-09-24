@@ -48,7 +48,13 @@ function App() {
     });
   }, [])
 
-  
+  const getEmployerProfileData = async () => {
+    setShowEmployerProfileSection(true)
+    const userDataFromDB = await getUserFromDB(userID)
+    setUserData(userDataFromDB)
+    const companyProfile = await getCompanyProfileFromDB(userID)
+    setCompanyData(companyProfile)
+  }
 
   return (
     <div className="">
@@ -58,18 +64,12 @@ function App() {
           {userData && userRole === "Employer" &&
             <button 
               className="cursor-pointer mr-2.5"
-              onClick={async () => {
-                setShowEmployerProfileSection(true)
-                const userDataFromDB = await getUserFromDB(userID)
-                setUserData(userDataFromDB)
-                const companyProfile = await getCompanyProfileFromDB(userID)
-                setCompanyData(companyProfile)
-              }}
-            >See my profile</button>
+              onClick={getEmployerProfileData}
+            >Xem profile</button>
           }
           {userData && <img src={userData.photoProfile} className='w-8 h-8 rounded-full bg-black flex justify-center items-center'/>}
-          {!userData && <button className="login-button cursor-pointer" onClick={() => setShowCreateAccount(true)}>Sign up</button>}
-          {userData && <button className="logout-button cursor-pointer ml-2.5" onClick={() => {signOutGoogle(); setUserData(null); setUserRole(null)}}>Log out</button>}
+          {!userData && <button className="login-button cursor-pointer" onClick={() => setShowCreateAccount(true)}>Đăng kí</button>}
+          {userData && <button className="logout-button cursor-pointer ml-2.5" onClick={() => {signOutGoogle(); setUserData(null); setUserRole(null)}}>Đăng xuất</button>}
         </div>
       </div>
       {showCreateAccount && 
@@ -82,7 +82,7 @@ function App() {
         userRole === "Employer" && <EmployerPage employerID={userID}/>
       }
       {
-        userRole === "Candidate" && <CandidatePage />
+        userRole === "Candidate" && <CandidatePage candidateID={userID}/>
       }
       {
         showEmployerProfileSection && 
@@ -91,6 +91,7 @@ function App() {
             userData={userData}
             companyData={companyData}
             userID={userID}
+            getData={getEmployerProfileData}
           />  
       }
     </div>

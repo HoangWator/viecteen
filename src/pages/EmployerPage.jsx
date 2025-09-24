@@ -1,7 +1,7 @@
-import { useState,useEffect } from 'react'
-import { addJobPostToDB,getCompanyProfileFromDB,getUserFromDB } from '../firebase'
+import { useState,useEffect, use } from 'react'
+import { addJobPostToDB,getCompanyProfileFromDB,getUserFromDB,getJobPostFromDB } from '../firebase'
 
-function AddJobPost({onClose, employerID}) {
+function AddJobPost({onClose, employerID, fetchJobPosts}) {
   const [userData, setUserData] = useState(null)
   const [businessData, setBusinessData] = useState(null)
   const [showDropDown, setShowDropdown] = useState(false)
@@ -53,7 +53,8 @@ function AddJobPost({onClose, employerID}) {
       ownerID: employerID || ''
     };
     console.log('Form data submitted:', formData);
-    addJobPostToDB(formData);
+    addJobPostToDB(formData, employerID);
+    fetchJobPosts();
     onClose();
     // You can add logic here to send the data to an API
   };
@@ -75,8 +76,8 @@ function AddJobPost({onClose, employerID}) {
       <div className="w-full mx-auto bg-white p-6 sm:p-10 rounded-3xl border-none">
         {/* Header Section */}
         <header className="text-center mb-10">
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-blue-900 tracking-tight">Create a New Job Post</h1>
-          <p className="text-gray-500 mt-2 text-base font-light">Fill out the details below to post a new job opening.</p>
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-blue-900 tracking-tight">Tạo tin tuyển dụng</h1>
+          <p className="text-gray-500 mt-2 text-base font-light">Điền đầy đủ thông tin để tạo tin tuyển dụng.</p>
         </header>
 
         {/* Form Section */}
@@ -84,7 +85,7 @@ function AddJobPost({onClose, employerID}) {
           {/* Job Title and Company Section */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label htmlFor="jobTitle" className="block text-sm font-semibold text-gray-700">Job Title</label>
+              <label htmlFor="jobTitle" className="block text-sm font-semibold text-gray-700">Tên công việc</label>
               <input
                 type="text"
                 id="jobTitle"
@@ -93,11 +94,11 @@ function AddJobPost({onClose, employerID}) {
                 onChange={handleChange}
                 required
                 className="input-field mt-1"
-                placeholder="e.g., Senior Software Engineer"
+                placeholder="VD: Thu ngân, bồi bàn,..."
               />
             </div>
             <div className='relative'>
-              <label htmlFor="company" className="block text-sm font-semibold text-gray-700">Company / User</label>
+              <label htmlFor="company" className="block text-sm font-semibold text-gray-700">Người đăng bài</label>
               <input
                 type="text"
                 id="company"
@@ -106,7 +107,7 @@ function AddJobPost({onClose, employerID}) {
                 onChange={handleChange}
                 required
                 className='input-field mt-1'
-                placeholder="e.g., Acme Inc."
+                placeholder="VD: Nguyễn Văn A, Quán phở 666,..."
                 onClick={() => setShowDropdown(true)}
               />
               {
@@ -132,12 +133,13 @@ function AddJobPost({onClose, employerID}) {
                     }
                     {businessData && 
                       <div 
-                        className="rounded-lg p-2 cursor-pointer hover:bg-gray-100"
+                        className="flex items-center space-x-3 rounded-lg p-2 cursor-pointer hover:bg-gray-100"
                         onClick={() => {
                           setShowDropdown(false)
                           setTypePostOwner("business")
                         }}
                       >
+                        <img src={businessData.imageProfile || ""} alt="" className='w-8 h-8 rounded-full'/>
                         <span className="text-sm font-medium text-gray-700">{businessData.nameCompany}</span>
                       </div>
                     }
@@ -148,7 +150,7 @@ function AddJobPost({onClose, employerID}) {
 
           {/* Job Description Section */}
           <div>
-            <label htmlFor="description" className="block text-sm font-semibold text-gray-700">Job Description</label>
+            <label htmlFor="description" className="block text-sm font-semibold text-gray-700">Mô tả công việc</label>
             <textarea
               id="description"
               name="description"
@@ -157,14 +159,14 @@ function AddJobPost({onClose, employerID}) {
               onChange={handleChange}
               required
               className='input-field mt-1'
-              placeholder="Provide a detailed description of the job responsibilities, company culture, and what the ideal candidate looks like."
+              placeholder="Mô tả về công việc như môi trường làm việc, đãi ngộ,..."
             ></textarea>
           </div>
 
           {/* Location, Employment Type, Pay Type, and Salary Section */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <div>
-              <label htmlFor="location" className="block text-sm font-semibold text-gray-700">Location</label>
+              <label htmlFor="location" className="block text-sm font-semibold text-gray-700">Vị trí</label>
               <input
                 type="text"
                 id="location"
@@ -173,11 +175,11 @@ function AddJobPost({onClose, employerID}) {
                 onChange={handleChange}
                 required
                 className='input-field mt-1'
-                placeholder="e.g., San Francisco, CA or Remote"
+                placeholder="Ví dụ: Tp HCM, Đà Nẵng,..."
               />
             </div>
             <div>
-              <label htmlFor="employmentType" className="block text-sm font-semibold text-gray-700">Employment Type</label>
+              <label htmlFor="employmentType" className="block text-sm font-semibold text-gray-700">Kiểu công việc</label>
               <select
                 id="employmentType"
                 name="employmentType"
@@ -185,17 +187,16 @@ function AddJobPost({onClose, employerID}) {
                 onChange={handleChange}
                 required
                 className='input-field mt-1'
-
               >
-                <option value="">Select a type</option>
+                <option value="">Chọn kiểu công việc</option>
                 <option value="full-time">Full-time</option>
                 <option value="part-time">Part-time</option>
-                <option value="contract">Contract</option>
-                <option value="internship">Internship</option>
+                <option value="contract">Hợp đồng</option>
+                <option value="internship">Thực tập</option>
               </select>
             </div>
             <div>
-              <label htmlFor="payType" className="block text-sm font-semibold text-gray-700">Pay Type</label>
+              <label htmlFor="payType" className="block text-sm font-semibold text-gray-700">Kiểu trả lương</label>
               <select
                 id="payType"
                 name="payType"
@@ -204,21 +205,21 @@ function AddJobPost({onClose, employerID}) {
                 required
                 className='input-field mt-1'
               >
-                <option value="">Select pay type</option>
-                <option value="hourly">Hourly</option>
-                <option value="salary">Salary</option>
-                <option value="commission">Commission</option>
+                <option value="">Chọn kiểu trả lương</option>
+                <option value="hourly">Theo giờ</option>
+                <option value="salary">Theo tháng</option>
+                <option value="commission">Theo kết quả công việc</option>
               </select>
             </div>
             <div>
-              <label htmlFor="salary" className="block text-sm font-semibold text-gray-700">Salary</label>
+              <label htmlFor="salary" className="block text-sm font-semibold text-gray-700">Lương</label>
               <input
                 type="text"
                 id="salary"
                 name="salary"
                 value={salary}
                 onChange={handleChange}
-                placeholder="$50,000 - $70,000"
+                placeholder="100.000 vnd"
                 className='input-field mt-1'
               />
             </div>
@@ -227,7 +228,7 @@ function AddJobPost({onClose, employerID}) {
           {/* Requirements and Tags Section */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label htmlFor="requirements" className="block text-sm font-semibold text-gray-700">Requirements</label>
+              <label htmlFor="requirements" className="block text-sm font-semibold text-gray-700">Yêu cầu công việc</label>
               <textarea
                 id="requirements"
                 name="requirements"
@@ -235,7 +236,7 @@ function AddJobPost({onClose, employerID}) {
                 value={requirements}
                 onChange={handleChange}
                 className='input-field mt-1'
-                placeholder="List key skills, qualifications, and experience required for the role."
+                placeholder="Kinh nghiệm, bằng cấp, kĩ năng cần thiết,..."
               ></textarea>
             </div>
             <div>
@@ -246,19 +247,19 @@ function AddJobPost({onClose, employerID}) {
                 name="tags"
                 value={tags}
                 onChange={handleChange}
-                placeholder="e.g., Remote, UI/UX, Design"
+                placeholder="VD: "
                 className='input-field mt-1'
               />
-              <p className="mt-2 text-xs text-gray-500">Separate tags with commas.</p>
+              <p className="mt-2 text-xs text-gray-500">Phân việt tags với dấu phẩy.</p>
             </div>
           </div>
 
           {/* Job Status Section */}
           <div className="flex items-center justify-between bg-blue-50 p-4 rounded-xl shadow-inner">
-            <span className="text-base font-bold text-blue-900">Job Status</span>
+            <span className="text-base font-bold text-blue-900">Trạng thái tin tuyển dụng</span>
             <div className="flex items-center space-x-4">
               <span className={`font-bold transition-colors duration-300 ${status ? 'text-green-600' : 'text-red-600'}`}>
-                {status ? 'Open' : 'Closed'}
+                {status ? 'Mở' : 'Đóng'}
               </span>
               <label htmlFor="statusToggle" className="relative inline-flex items-center cursor-pointer">
                 <input
@@ -280,7 +281,7 @@ function AddJobPost({onClose, employerID}) {
               type="submit"
               className='primary-btn'
             >
-              Post Job
+              Đăng tin
             </button>
           </div>
         </form>
@@ -292,17 +293,54 @@ function AddJobPost({onClose, employerID}) {
 
 export function EmployerPage({employerID}) {
   const [showJobPostForm, setShowJobPostForm] = useState(false)
+  const [jobPosts, setJobPosts] = useState([])
+
+  const fetchJobPosts = async () => {
+    if (employerID) {
+      const userData = await getUserFromDB(employerID)
+      const jobPostIDs = userData.jobPosts || []
+      const jobs = await Promise.all(jobPostIDs.map((jobID) => getJobPostFromDB(jobID)))
+      setJobPosts(jobs)
+    }
+  }
+
+  useEffect(() => {
+    fetchJobPosts()
+  }, [])
+
   return (
     <div className="p-10">
       <button 
         className='primary-btn'
         onClick={() => setShowJobPostForm(true)}
-      >Add Job Post</button>
+      >Tạo tin tuyển dụng</button>
       {showJobPostForm && 
         <AddJobPost 
           onClose={() => setShowJobPostForm(false)}
           employerID={employerID}
-        />}
+          fetchJobPosts={fetchJobPosts}
+        />
+      }
+
+      <h1 className='mt-5 text-3xl'>Tin tuyển dụng của tôi</h1>
+      {jobPosts.length === 0 && <p className='mt-2 text-gray-500'>Bạn chưa đăng bài đăng nào.</p>}
+
+      {jobPosts.length > 0 &&
+        <div className='mt-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+          {jobPosts.map((job, index) => (
+            <div key={index} className='border p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300'>
+              <h2 className='text-xl font-bold text-blue-900'>{job.jobTitle}</h2>
+              <p className='mt-2 text-gray-700'>{job.description}</p>
+              <p className='mt-2 text-sm text-gray-500'><span className='font-semibold'>Vị trí:</span> {job.location}</p>
+              <p className='mt-1 text-sm text-gray-500'><span className='font-semibold'>Kiểu việc làm:</span> {job.employmentType}</p>
+              <p className='mt-1 text-sm text-gray-500'><span className='font-semibold'>Trả lương theo:</span> {job.payType}</p>
+              <p className='mt-1 text-sm text-gray-500'><span className='font-semibold'>Lương:</span> {job.salary}</p>
+              <p className='mt-1 text-sm text-gray-500'><span className='font-semibold'>Trạng thái:</span> {job.status ? 'Open' : 'Closed'}</p>
+              <p className='mt-1 text-sm text-gray-500'><span className='font-semibold'>Tags:</span> {job.tags}</p>
+            </div>
+          ))}
+        </div>
+      }
     </div>
   )
 }

@@ -18,17 +18,17 @@ export function SelectRole({onClose,data,onUserData}) {
         onClick={() => onClose()}
       >X</div>
       <div className="w-1/2 p-5 bg-white rounded-lg shadow-md text-center">
-        <h1 className="text-3xl">Create Account Page</h1>
-        <h2 className="text-xl">You are:</h2>
+        <h1 className="text-3xl">Tạo tài khoản</h1>
+        <h2 className="text-xl">Bạn là:</h2>
         <div className="flex gap-4 mt-4">
           <button 
             className="w-1/2 p-10 border rounded-lg cursor-pointer hover:bg-gray-100"
             onClick={() => addUser("Candidate")}
-          >Candidate</button>
+          >Ứng viên</button>
           <button 
             className="w-1/2 p-10 border rounded-lg cursor-pointer hover:bg-gray-100"
             onClick={() => addUser("Employer")}
-          >Employer</button>
+          >Nhà tuyển dụng</button>
         </div>
         
       </div>
@@ -50,12 +50,12 @@ export function SignUpPage({onClose, onUserData}) {
 
       const userDataDB = await getUserFromDB(result.user.uid)
       if (userDataDB) {
-        console.log("User already exists in DB")
-        onUserData(userDataDB)
+        // User already exists in DB
+        onUserData(result.user.uid)
         onClose()
       }
       else {
-        console.log("New user, need to select role")
+        // New user, need to select role
         setShowSelectRole(true)
       }
     }
@@ -70,18 +70,18 @@ export function SignUpPage({onClose, onUserData}) {
         className='exit-btn'
       >X</button>
       <div>
-        <h1 className='text-center text-4xl mb-3'>Sign up</h1>
+        <h1 className='text-center text-4xl mb-3'>Đăng kí</h1>
         <div className="flex gap-3.5 items-center">
           <form action="" className='w-1/2'>
             <input 
               className="p-2.5 bg-gray-200 rounded-lg outline-none cursor-pointer block mb-2.5 hover:bg-gray-300" 
               type="text" 
-              placeholder='Username'
+              placeholder='Tên người dùng'
             />
             <input 
               className="p-2.5 bg-gray-200 rounded-lg outline-none cursor-pointer block mb-2.5 hover:bg-gray-300" 
               type="tel" 
-              placeholder='Phone number'
+              placeholder='Số điện thoại'
             />
             <input 
               className="p-2.5 bg-gray-200 rounded-lg outline-none cursor-pointer block mb-2.5 hover:bg-gray-300" 
@@ -91,21 +91,21 @@ export function SignUpPage({onClose, onUserData}) {
             <input 
               className="p-2.5 bg-gray-200 rounded-lg outline-none cursor-pointer block mb-2.5 hover:bg-gray-300" 
               type="password" 
-              placeholder='Password'
+              placeholder='Mật khẩu'
             />
             <input 
               className="p-2.5 bg-gray-200 rounded-lg outline-none cursor-pointer block mb-2.5 hover:bg-gray-300" 
               type="password" 
-              placeholder='Repeat password'
+              placeholder='Xác nhận mật khẩu'
             />
-            <button className='primary-btn float-right' type="submit">Create account</button>
+            <button className='primary-btn float-right' type="submit">Tạo tài khoản</button>
           </form>
-          <p className='text-center mb-2.5'>Or</p>
+          <p className='text-center mb-2.5'>Hoặc</p>
           <div className='flex flex-col justify-center items-center w-1/2'>
             <button 
               className="primary-btn"
               onClick={signInWithGoogle}
-            >Sign in with Google</button>
+            >Tiếp tục với Google</button>
             {/* <button 
               className="primary-btn mt-2.5"
               onClick={() => signInWithFacebook()}
