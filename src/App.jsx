@@ -1,12 +1,13 @@
 import { useState,useEffect } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+// import reactLogo from './assets/react.svg'
+// import viteLogo from '/vite.svg'
 import './App.css'
 
 import { SignUpPage } from './pages/CreateAccount'
 import { EmployerPage } from './pages/EmployerPage'
 import { CandidatePage } from './pages/CandidatePage'
 import { EmployerProfileSection } from './pages/EmployerProfileSection'
+import { HomePage } from './pages/HomePage'
 
 import { getAuth,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 import { getUserFromDB,getCompanyProfileFromDB,signOutGoogle, checkAuthStatus } from './firebase'
@@ -59,31 +60,38 @@ function App() {
   return (
     <div className="">
       <div className="nav w-full h-15 bg-white flex items-center justify-between px-10">
-        <h1 className='text-3xl text-blue-600'>viecteen</h1>
+        <div className='flex items-center gap-3'>
+          <h1 className='text-3xl text-primary flex'>
+            <img src="/public/viecteen_logo.png" alt="" className='w-10 h-10'/>
+            viecteen
+          </h1>
+          <a href="#" className='inline-block'>Trang chủ</a>
+          <a href="#" className='inline-block'>Tuyển dụng</a>
+          <a href="#" className='inline-block'>Giải đáp</a>
+        </div>
         <div className="account-management flex items-center">
-          {userData && userRole === "Employer" &&
-            <button 
-              className="cursor-pointer mr-2.5"
+          {userData && 
+            <img 
+              src={userData.photoProfile} 
+              className='w-6 h-6 rounded-full bg-black flex justify-center items-center'
               onClick={getEmployerProfileData}
-            >Xem profile</button>
+            />
           }
-          {userData && <img src={userData.photoProfile} className='w-8 h-8 rounded-full bg-black flex justify-center items-center'/>}
-          {!userData && <button className="login-button cursor-pointer" onClick={() => setShowCreateAccount(true)}>Đăng kí</button>}
-          {userData && <button className="logout-button cursor-pointer ml-2.5" onClick={() => {signOutGoogle(); setUserData(null); setUserRole(null)}}>Đăng xuất</button>}
+          {!userData && <button className="primary-btn cursor-pointer" onClick={() => setShowCreateAccount(true)}>Đăng nhập</button>}
+          {userData && <button className="primary-btn cursor-pointer ml-2.5" onClick={() => {signOutGoogle(); setUserData(null); setUserRole(null)}}>Đăng xuất</button>}
         </div>
       </div>
+
+      <HomePage />
+
       {showCreateAccount && 
         <SignUpPage 
           onClose={() => setShowCreateAccount(false)}
           onUserData={handleUserData}
         />
       }
-      {
-        userRole === "Employer" && <EmployerPage employerID={userID}/>
-      }
-      {
-        userRole === "Candidate" && <CandidatePage candidateID={userID}/>
-      }
+      {userRole === "Employer" && <EmployerPage employerID={userID}/>}
+      {userRole === "Candidate" && <CandidatePage candidateID={userID}/>}
       {
         showEmployerProfileSection && 
           <EmployerProfileSection 

@@ -104,7 +104,7 @@ function EmployerDetails({userData, userID, onSubmit}) {
         </div>
         <div className='flex gap-2.5'>
           <span className="w-1/3 font-bold text-lg">Giới tính:</span>
-          <p>{userData.gender || "Unknown"}</p>
+          <p>{userData.gender === "Male" ? "Nam" : (userData.gender === "Female" ? "Nữ" : "Unknown")}</p>
         </div>
         <div className='flex gap-2.5'>
           <span className="w-1/3 font-bold text-lg">Số điện thoại:</span>
@@ -251,7 +251,7 @@ function CompanyDetails({companyData, employerID, onSubmit}) {
           </div>
           <div className='flex gap-2.5'>
             <span className="w-1/2 font-bold text-lg">Địa chỉ:</span>
-            <p>{companyData.address}</p>
+            <p className='text-left'>{companyData.address}</p>
           </div>
           <div className='flex gap-2.5'>
             <span className="w-1/2 font-bold text-lg">Số điện thoại:</span>
@@ -260,7 +260,7 @@ function CompanyDetails({companyData, employerID, onSubmit}) {
           <div className='flex gap-2.5'>
             <span className="w-1/2 font-bold text-lg">Website:</span>
             {companyData.websiteURL ? 
-              <a href={companyData.websiteURL} className="text-blue-500 hover:underline">{companyData.websiteURL}</a>
+              <a href={companyData.websiteURL} className="text-blue-500 hover:underline text-left">{companyData.websiteURL}</a>
             : <p>Empty</p>}
           </div>
           

@@ -70,19 +70,9 @@ export function SignUpPage({onClose, onUserData}) {
         className='exit-btn'
       >X</button>
       <div>
-        <h1 className='text-center text-4xl mb-3'>Đăng kí</h1>
-        <div className="flex gap-3.5 items-center">
-          <form action="" className='w-1/2'>
-            <input 
-              className="p-2.5 bg-gray-200 rounded-lg outline-none cursor-pointer block mb-2.5 hover:bg-gray-300" 
-              type="text" 
-              placeholder='Tên người dùng'
-            />
-            <input 
-              className="p-2.5 bg-gray-200 rounded-lg outline-none cursor-pointer block mb-2.5 hover:bg-gray-300" 
-              type="tel" 
-              placeholder='Số điện thoại'
-            />
+        <h1 className='text-primary text-center text-4xl mb-10'>Đăng nhập</h1>
+        <div className="flex flex-col gap-3.5 items-center">
+          <form action="" className=''>
             <input 
               className="p-2.5 bg-gray-200 rounded-lg outline-none cursor-pointer block mb-2.5 hover:bg-gray-300" 
               type="email" 
@@ -93,19 +83,17 @@ export function SignUpPage({onClose, onUserData}) {
               type="password" 
               placeholder='Mật khẩu'
             />
-            <input 
-              className="p-2.5 bg-gray-200 rounded-lg outline-none cursor-pointer block mb-2.5 hover:bg-gray-300" 
-              type="password" 
-              placeholder='Xác nhận mật khẩu'
-            />
-            <button className='primary-btn float-right' type="submit">Tạo tài khoản</button>
+            <div className='flex justify-center'>
+
+              <button className='primary-btn float-right' type="submit">Đăng nhập</button>
+            </div>
           </form>
           <p className='text-center mb-2.5'>Hoặc</p>
-          <div className='flex flex-col justify-center items-center w-1/2'>
+          <div className='flex flex-col justify-center items-center'>
             <button 
               className="primary-btn"
               onClick={signInWithGoogle}
-            >Tiếp tục với Google</button>
+            >Đăng nhập với Google</button>
             {/* <button 
               className="primary-btn mt-2.5"
               onClick={() => signInWithFacebook()}

@@ -4,14 +4,20 @@
 @import "tailwindcss/preflight.css" layer(base);
 @import "tailwindcss/utilities.css" layer(utilities);
 
+@theme {
+  --color-primary: #242483;
+  --color-primary-second: #ead6f8
+}
+
 @layer components {
   .exit-btn {
     @apply w-10 h-10 flex justify-center items-center rounded-full cursor-pointer hover:bg-gray-200 absolute left-2.5 top-2.5;
   }
   .primary-btn {
-    @apply p-2.5 bg-black text-base text-white rounded-full cursor-pointer;
+    @apply p-2.5 bg-primary text-base text-white rounded-full cursor-pointer;
   }
   .input-field {
     @apply w-full p-2.5 border-none outline-none rounded-md bg-gray-100;
   }
 }
+

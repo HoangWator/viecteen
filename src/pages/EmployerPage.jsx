@@ -15,6 +15,7 @@ function AddJobPost({onClose, employerID, fetchJobPosts}) {
   const [payType, setPayType] = useState('')
   const [salary, setSalary] = useState('')
   const [requirements, setRequirements] = useState('')
+  const [age, setAge] = useState('')
   const [tags, setTags] = useState('')
   const [status, setStatus] = useState(true)
 
@@ -30,6 +31,7 @@ function AddJobPost({onClose, employerID, fetchJobPosts}) {
       case 'payType': setPayType(value); break;
       case 'salary': setSalary(value); break;
       case 'requirements': setRequirements(value); break;
+      case 'age': setAge(value); break;
       case 'tags': setTags(value); break;
       case 'status': setStatus(checked); break;
     }
@@ -48,6 +50,7 @@ function AddJobPost({onClose, employerID, fetchJobPosts}) {
       payType,
       salary,
       requirements,
+      age,
       tags,
       status,
       ownerID: employerID || ''
@@ -240,18 +243,31 @@ function AddJobPost({onClose, employerID, fetchJobPosts}) {
               ></textarea>
             </div>
             <div>
-              <label htmlFor="tags" className="block text-sm font-semibold text-gray-700">Tags</label>
-              <input
-                type="text"
-                id="tags"
-                name="tags"
-                value={tags}
+              <label htmlFor="age" className="block text-sm font-semibold text-gray-700">Yêu cầu độ tuổi</label>
+              <textarea
+                id="age"
+                name="age"
+                rows="4"
+                value={age}
                 onChange={handleChange}
-                placeholder="VD: "
                 className='input-field mt-1'
-              />
-              <p className="mt-2 text-xs text-gray-500">Phân việt tags với dấu phẩy.</p>
+                placeholder="Độ tuổi tối thiểu"
+              ></textarea>
             </div>
+
+          </div>
+          <div>
+            <label htmlFor="tags" className="block text-sm font-semibold text-gray-700">Tags</label>
+            <input
+              type="text"
+              id="tags"
+              name="tags"
+              value={tags}
+              onChange={handleChange}
+              placeholder="VD: "
+              className='input-field mt-1'
+            />
+            <p className="mt-2 text-xs text-gray-500">Phân việt tags với dấu phẩy.</p>
           </div>
 
           {/* Job Status Section */}
@@ -331,6 +347,7 @@ export function EmployerPage({employerID}) {
             <div key={index} className='border p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300'>
               <h2 className='text-xl font-bold text-blue-900'>{job.jobTitle}</h2>
               <p className='mt-2 text-gray-700'>{job.description}</p>
+              <p className='mt-2 text-sm text-gray-500'><span className='font-semibold'>Độ tuổi tối thiểu:</span> {job.age}</p>
               <p className='mt-2 text-sm text-gray-500'><span className='font-semibold'>Vị trí:</span> {job.location}</p>
               <p className='mt-1 text-sm text-gray-500'><span className='font-semibold'>Kiểu việc làm:</span> {job.employmentType}</p>
               <p className='mt-1 text-sm text-gray-500'><span className='font-semibold'>Trả lương theo:</span> {job.payType}</p>
