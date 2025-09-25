@@ -1,5 +1,8 @@
-import { useState,useEffect, use } from 'react'
-import { addJobPostToDB,getCompanyProfileFromDB,getUserFromDB,getJobPostFromDB } from '../firebase'
+import { useState,useEffect } from 'react'
+import { addJobPostToDB,getCompanyProfileFromDB,getUserFromDB,getJobPostFromDB,deleteJobPostInDB } from '../firebase'
+import { Loader } from './Loader'
+
+
 
 function AddJobPost({onClose, employerID, fetchJobPosts}) {
   const [userData, setUserData] = useState(null)
@@ -39,7 +42,8 @@ function AddJobPost({onClose, employerID, fetchJobPosts}) {
   };
 
   // Handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
+    setShowLoader(true)
     e.preventDefault();
     const formData = {
       jobTitle,
@@ -56,8 +60,9 @@ function AddJobPost({onClose, employerID, fetchJobPosts}) {
       ownerID: employerID || ''
     };
     console.log('Form data submitted:', formData);
-    addJobPostToDB(formData, employerID);
-    fetchJobPosts();
+    await addJobPostToDB(formData, employerID);
+    await fetchJobPosts();
+    setShowLoader(false)
     onClose();
     // You can add logic here to send the data to an API
   };
@@ -319,6 +324,10 @@ export function EmployerPage({employerID}) {
       setJobPosts(jobs)
     }
   }
+  const deleteJobPost = async (postID, employerID) => {
+    await deleteJobPostInDB(postID, employerID)
+    await fetchJobPosts()
+  }
 
   useEffect(() => {
     fetchJobPosts()
@@ -354,6 +363,7 @@ export function EmployerPage({employerID}) {
               <p className='mt-1 text-sm text-gray-500'><span className='font-semibold'>Lương:</span> {job.salary}</p>
               <p className='mt-1 text-sm text-gray-500'><span className='font-semibold'>Trạng thái:</span> {job.status ? 'Open' : 'Closed'}</p>
               <p className='mt-1 text-sm text-gray-500'><span className='font-semibold'>Tags:</span> {job.tags}</p>
+              <button className='primary-btn bg-red-500 mt-2.5' onClick={async () => deleteJobPost(job.id, employerID)}>Xóa tin</button>
             </div>
           ))}
         </div>

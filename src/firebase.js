@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-analytics.js";
 import { getAuth,GoogleAuthProvider,signOut,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
-import { getFirestore,doc,setDoc,getDoc,getDocs,updateDoc,addDoc,collection } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+import { getFirestore,doc,setDoc,getDoc,getDocs,updateDoc,addDoc,deleteDoc,collection,arrayRemove } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -142,9 +142,13 @@ export const getCompanyProfileFromDB = async (uid) => {
 export const addJobPostToDB = async (jobData, employerID) => {
   try {
     const docRef = await addDoc(collection(db, "jobs"), jobData);
+    await updateDoc(doc(db, "jobs", docRef.id), {
+      id: docRef.id
+    });
 
     // Add job post ID to user's profile
     const userRef = doc(db, "users", employerID);
+
     await updateDoc(userRef, {
       jobPosts: [...(await getUserFromDB(employerID)).jobPosts || [], docRef.id]
     });
@@ -152,6 +156,13 @@ export const addJobPostToDB = async (jobData, employerID) => {
   catch (error) {
     console.error("Error adding job post: ", error);
   }
+}
+// Delete job post in Firestore
+export const deleteJobPostInDB = async (postID, employerID) => {
+  await deleteDoc(doc(db, "jobs", postID))
+  await updateDoc(doc(db, "users", employerID), {
+    jobPosts: arrayRemove(postID)
+});
 }
 // Get job post from Firestore
 export const getJobPostFromDB = async (jobID) => {

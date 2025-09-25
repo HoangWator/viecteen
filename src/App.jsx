@@ -8,6 +8,7 @@ import { EmployerPage } from './pages/EmployerPage'
 import { CandidatePage } from './pages/CandidatePage'
 import { EmployerProfileSection } from './pages/EmployerProfileSection'
 import { HomePage } from './pages/HomePage'
+import { Loader } from './pages/Loader'
 
 import { getAuth,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
 import { getUserFromDB,getCompanyProfileFromDB,signOutGoogle, checkAuthStatus } from './firebase'
@@ -20,6 +21,7 @@ function App() {
   const [userID, setUserID] = useState(null)
   const [companyData, setCompanyData] = useState(null)
   const [showEmployerProfileSection, setShowEmployerProfileSection] = useState(false)
+  const [showLoader, setShowLoader] = useState(false)
 
 
   const handleUserData = (uid) => {
@@ -31,6 +33,7 @@ function App() {
   }
 
   useEffect(() => {
+    setShowLoader(true)
     const auth = getAuth();
     onAuthStateChanged(auth, async (user) => {
       if (user) {
@@ -39,12 +42,14 @@ function App() {
         setUserID(uid)
         console.log("User is signed in with UID:", uid)
         const userDataFromDB = await getUserFromDB(uid)
+        setShowLoader(false)
         setUserData(userDataFromDB)
         setUserRole(userDataFromDB.role)
         const companyProfile = await getCompanyProfileFromDB(uid)
         setCompanyData(companyProfile)
       } else {
         console.log("No user is signed in.")
+        setShowLoader(false)
       }
     });
   }, [])
@@ -59,9 +64,10 @@ function App() {
 
   return (
     <div className="">
+      {showLoader && <Loader />}
       <div className="nav w-full h-15 bg-white flex items-center justify-between px-10">
         <div className='flex items-center gap-3'>
-          <h1 className='text-3xl text-primary flex'>
+          <h1 className='text-3xl text-primary flex select-none'>
             <img src="/public/viecteen_logo.png" alt="" className='w-10 h-10'/>
             viecteen
           </h1>
@@ -73,7 +79,7 @@ function App() {
           {userData && 
             <img 
               src={userData.photoProfile} 
-              className='w-6 h-6 rounded-full bg-black flex justify-center items-center'
+              className='w-7 h-7 rounded-full bg-black flex justify-center items-center cursor-pointer'
               onClick={getEmployerProfileData}
             />
           }
@@ -82,7 +88,7 @@ function App() {
         </div>
       </div>
 
-      <HomePage />
+      {userRole != "Employer" && userRole != "Candidate" && !showCreateAccount && <HomePage />}
 
       {showCreateAccount && 
         <SignUpPage 
